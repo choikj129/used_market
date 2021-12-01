@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    
+    <%- include("./head.ejs")%>
+    <!-- Custom styles for this template -->
+    <link href="../css/signin.css" rel="stylesheet">
+
+    <script>
+      $(function(){
+        $("#body").hide();
+        $("#success_password").hide();
+        $("#fail_password").hide();
+        $("#signup").attr("disabled", "disabled")
+
+        $("#id_check").click(function(){
+          var _id = $("#input_id").val();
+          if(_id.length==0){
+            alert("ID를 입력하세요")
+          }else{
+            $.getJSON("/jq/id_check",
+            {
+              "id" : _id
+            },
+            function(result, status){
+              if(result.code=="error"){
+                alert("SQL Error")
+              }else if(result.code=="used"){
+                alert("ID가 존재합니다.")
+              }else{
+                $("#id_check").remove();
+                $("#body").show();
+              }
+            })
+          }
+        })
+
+        $("input").keyup(function(){
+          var pw1 = $("#input_password").val();
+          var pw2 = $("#confirm_password").val();
+          var name = $("#input_name").val();
+          var phone = $("#input_phone").val();
+          var email = $("#input_email").val();
+          if(pw1 && pw2){
+            if(pw1==pw2){
+              $("#success_password").show();
+              $("#fail_password").hide();
+              $("#signup").removeAttr("disabled")
+            }else{
+              $("#fail_password").show();
+              $("#success_password").hide();
+              $("#signup").attr("disabled", "disabled")
+            }
+          }else{
+            $("#success_password").hide();
+            $("#fail_password").hide();
+            $("#signup").attr("disabled", "disabled")
+          }
+        })
+      })
+    </script>
+
+    <script>
+      function login(){
+        location.href="/"
+      }
+    </script>
+
+  </head>
+  <body class="text-center">
+    <main class="form-signin">
+      <form action="/user/add" method="POST">
+        <h1 class="h3 mb-3 fw-normal">회원가입</h1>
+
+        <div class="form-floating">
+          <input type="text" class="form-control" id="input_id" placeholder="ID" name="id">
+          <label for="input_id">ID</label>
+        </div>
+        <div class="alert alert-secondary" style="cursor:pointer" id="id_check">아이디 중복확인</div>
+        <div id="body">
+          <div class="form-floating">
+            <input type="password" class="form-control" id="input_password" placeholder="Password" name="password">
+            <label for="input_password">Password</label>
+          </div>
+          <div class="form-floating">
+            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm_Password">
+            <label for="input_password">Confirm Password</label>
+          </div>
+          <div class="alert alert-success" id="success_password">
+            비밀번호가 일치합니다.
+          </div>
+          <div class="alert alert-danger" id="fail_password">
+            비밀번호가 일치하지 않습니다.
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="input_name" placeholder="Name" name="name" required>
+            <label for="input_name">Name</label>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="input_phone" placeholder="Phone" name="phone" required>
+            <label for="input_phone">Phone</label>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="input_email" placeholder="Email" name="email" required>
+            <label for="input_email">Email</label>
+          </div>
+
+          <button class="w-100 btn btn-lg btn-primary" type="submit" id="signup">회원가입</button>
+          <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+        </div>
+      </form>
+      <button class="w-100 btn btn-lg btn-primary" onclick="login()">Log in</button>
+    </main>
+  </body>
+</html>
