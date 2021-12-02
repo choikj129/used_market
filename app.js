@@ -3,7 +3,9 @@ const app = express();
 const mysql = require("mysql2");
 const session = require("express-session");
 const fs = require("fs");
+const Crypto = require("crypto");
 const data = JSON.parse(fs.readFileSync(__dirname + '/db.json'));
+const key = data.keypair
 
 const db = mysql.createConnection({
     host : data.host,
@@ -41,8 +43,43 @@ app.get("/signup", function(req, res){
     res.render("signup")
 })
 
-app.get("/main", function(req, res){
+app.get("/index", function(req, res){
     res.render("index.ejs")
 })
 
+app.get("/main", function(req, res){
+    res.render("main.ejs")
+})
 
+app.get("/email_check", function(req, res){
+    var email = req.query.email
+    db.query(
+        `select * from user where email=?`,[email],
+        function(err, result){
+            err ? console.log(err) : res.json({check : result})
+        }
+    )
+})
+
+app.get("/name_check", function(req, res){
+    var name = req.query.name
+    db.query(
+        `select * from user where nickname=?`,[name],
+        function(err, result){
+            err ? console.log(err) : res.json({check : result})
+        }
+    )
+})
+
+app.post("/signup/appro", function(req, res){
+    var email = req.body.e;
+    var pw = Crypto.createHmac('sha256', key).update(req.body.p).digest("hex");
+    var n = req.body.n;
+    db.query(
+        `insert into user values(?,?,?)`,
+        [email, pw, n],
+        function(err){
+            err ? console.log(err) : res.send("")
+        }
+    )
+})

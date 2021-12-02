@@ -7,109 +7,297 @@
     <link href="../css/signin.css" rel="stylesheet">
 
     <script>
-      $(function(){
-        $("#body").hide();
-        $("#success_password").hide();
-        $("#fail_password").hide();
-        $("#signup").attr("disabled", "disabled")
-
-        $("#id_check").click(function(){
-          var _id = $("#input_id").val();
-          if(_id.length==0){
-            alert("ID를 입력하세요")
-          }else{
-            $.getJSON("/jq/id_check",
-            {
-              "id" : _id
-            },
-            function(result, status){
-              if(result.code=="error"){
-                alert("SQL Error")
-              }else if(result.code=="used"){
-                alert("ID가 존재합니다.")
-              }else{
-                $("#id_check").remove();
-                $("#body").show();
-              }
-            })
-          }
-        })
-
-        $("input").keyup(function(){
-          var pw1 = $("#input_password").val();
-          var pw2 = $("#confirm_password").val();
-          var name = $("#input_name").val();
-          var phone = $("#input_phone").val();
-          var email = $("#input_email").val();
-          if(pw1 && pw2){
-            if(pw1==pw2){
-              $("#success_password").show();
-              $("#fail_password").hide();
-              $("#signup").removeAttr("disabled")
-            }else{
-              $("#fail_password").show();
-              $("#success_password").hide();
-              $("#signup").attr("disabled", "disabled")
-            }
-          }else{
-            $("#success_password").hide();
-            $("#fail_password").hide();
-            $("#signup").attr("disabled", "disabled")
-          }
-        })
-      })
-    </script>
-
-    <script>
       function login(){
         location.href="/"
       }
     </script>
 
   </head>
-  <body class="text-center">
-    <main class="form-signin">
-      <form action="/user/add" method="POST">
-        <h1 class="h3 mb-3 fw-normal">회원가입</h1>
-
-        <div class="form-floating">
-          <input type="text" class="form-control" id="input_id" placeholder="ID" name="id">
-          <label for="input_id">ID</label>
+  <body>
+    <div class="joinForm" >                                                                    
+      <h2>회원가입</h2>
+      <div class="textForm form-floating">
+        <div class="text" >이메일</div>
+        <input type="text" id="email" class="input form-control is-invalid" >
+        <button class="btn btn-primary" style=" margin-left: 20px; height: 25px; padding: 0 10px" id="email_check">중복확인</button>
+        <div class="about" id="email_text" style="visibility: hidden;">.</div>
+      </div>
+      <div class="textForm form-floating">
+        <div class="text">비밀번호</div>
+        <input type="password" class="input form-control password is-invalid " id="pw">
+        <br><div class="about">8~20자 사이 영문자,숫자,특수기호(~,!,@,#,?)로 조합하세요</div>
+      </div>
+       <div class="textForm form-floating">
+        <div class="text">비밀번호 확인</div>
+        <input type="password" class="input form-control password is-invalid" id="pw_check">
+        <br><div class="about" style="visibility: hidden;">비밀번호가 일치하지 않습니다.</div>
+      </div>
+      <div class="textForm">
+        <div class="text">닉네임</div>
+        <input type="text" class="input form-control" id="name">
+        <br><div class="about" style="visibility: hidden;" id="name_check">.</div>
+      </div>
+      <div style="width : 100%;margin : 0 auto">
+        <button class="btn btn-primary" id="signup" style="display: block; margin : auto" disabled>회원가입</button>
+      </div>
+    </div>
+    <!-- <div id="wrapper">
+      <div class="box">
+        <div class="name">이메일</div>
+        <div class="input-group mb-3 input">
+          <input type="text" class="form-control" id="email">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2">중복확인</button>
         </div>
-        <div class="alert alert-secondary" style="cursor:pointer" id="id_check">아이디 중복확인</div>
-        <div id="body">
-          <div class="form-floating">
-            <input type="password" class="form-control" id="input_password" placeholder="Password" name="password">
-            <label for="input_password">Password</label>
-          </div>
-          <div class="form-floating">
-            <input type="password" class="form-control" id="confirm_password" placeholder="Confirm_Password">
-            <label for="input_password">Confirm Password</label>
-          </div>
-          <div class="alert alert-success" id="success_password">
-            비밀번호가 일치합니다.
-          </div>
-          <div class="alert alert-danger" id="fail_password">
-            비밀번호가 일치하지 않습니다.
-          </div>
-          <div class="form-floating">
-            <input type="text" class="form-control" id="input_name" placeholder="Name" name="name" required>
-            <label for="input_name">Name</label>
-          </div>
-          <div class="form-floating">
-            <input type="text" class="form-control" id="input_phone" placeholder="Phone" name="phone" required>
-            <label for="input_phone">Phone</label>
-          </div>
-          <div class="form-floating">
-            <input type="text" class="form-control" id="input_email" placeholder="Email" name="email" required>
-            <label for="input_email">Email</label>
-          </div>
-
-          <button class="w-100 btn btn-lg btn-primary" type="submit" id="signup">회원가입</button>
-          <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+        <div class="alert alert-danger" role="alert" id="email_alert">
+          이메일 형식이 아닙니다.
         </div>
-      </form>
-      <button class="w-100 btn btn-lg btn-primary" onclick="login()">Log in</button>
-    </main>
+      </div>
+      <div class="box">
+        <div class="name">비밀번호</div>
+        <div class="input-group mb-3 input">
+          <input type="password" class="form-control password" id="pw">
+        </div>
+      </div>
+      <div class="box">
+        <div class="name">비밀번호확인</div>
+        <div class="form-floating input">
+          <input type="password" class="form-control password" id="pw_check">
+        </div>
+      </div>
+      <div class="box">
+        <div class="name">닉네임</div>
+        <div class="input-group mb-3 input" >
+          <input type="text" class="form-control" id="name">
+        </div>
+      </div>
+      <button class="btn btn-outline-secondary" type="button" id="button-addon2">인증번호 발송</button>
+      <div class="name">인증번호</div>
+      <div class="input-group mb-3 input" >
+        <input type="text" class="form-control" id="number">
+        <button class="btn btn-outline-secondary" type="button" id="button-addon2">확인</button>
+      </div>
+    </div> -->
   </body>
 </html>
+
+<script>
+  $("#email").keyup(function(){
+    $("#email_text").html(".").css("visibility", "hidden")
+    $(this).removeClass("confirm")
+  })
+
+  $(".password").keyup(function(){
+    var p = $("#pw").val()
+    var pc = $("#pw_check").val()
+
+    p.length>7 && p.length<21 && /[a-zA-Z]/.test(p) && /[0-9]/.test(p) &&
+    (p.includes("~")||p.includes("!")||p.includes("@")||p.includes("#")||p.includes("?"))
+      ?$("#pw").removeClass("is-invalid").addClass("confirm")
+      :$("#pw").removeClass("confirm").addClass("is-invalid")
+
+    
+    p==pc && pc.length>0
+      ? $("#pw_check").removeClass("is-invalid").addClass("confirm") 
+      : $("#pw_check").removeClass("confirm").addClass("is-invalid")
+  })
+  
+
+  $("#email_check").click(function(){
+    var e = $("#email").val()
+    var reg = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i
+    if (reg.test(e)){
+      $.getJSON("/email_check",{
+        email : e
+      },
+      function(result){
+        if(result.check.length>0){
+          $("#email_text").html("중복된 이메일입니다.").css("visibility", "")
+          $("#email").removeClass("confirm").addClass("is-invalid")
+        }else{
+          $("#email_text").html("사용 가능한 이메일입니다.").css("visibility", "")
+          $("#email").removeClass("is-invalid").addClass("confirm")
+          $("#email").is(".confirm") && $("#pw").is(".confirm")
+          && $("#pw_check").is(".confirm") && $("#name").is(".confirm")
+            ? $("#signup").removeAttr("disabled")
+            : $("#signup").attr("disabled", "disabled")
+        }
+        
+      })
+    }else{
+      $("#email").removeClass("confirm").addClass("is-invalid")
+      $("#email_text").html("이메일 형식이 아닙니다.").css("visibility", "")
+    }
+
+    
+  })
+
+  $("#name").blur(function(){
+    var name = $(this).val()
+    if (name){
+      $.getJSON("/name_check",{name : name},
+      function(result){
+        if (result.check.length==0){
+          $("#name_check").html("사용 가능한 닉네임입니다.").css("visibility", "")
+          $("#name").removeClass("is-invalid").addClass("confirm")
+          $("#email").is(".confirm") && $("#pw").is(".confirm")
+          && $("#pw_check").is(".confirm") && $("#name").is(".confirm")
+            ? $("#signup").removeAttr("disabled")
+            : $("#signup").attr("disabled", "disabled")
+        }else{
+          $("#name_check").html("중복된 닉네임입니다.").css("visibility", "")
+          $("#name").removeClass("confirm").addClass("is-invalid")
+          $("#signup").attr("disabled", "disabled")
+        }
+      })
+    }else{
+      $("#name_check").css("visibility", "hidden")
+      $("#name").removeClass("confirm").addClass("is-invalid")
+    }
+    
+  })
+  
+  $("input").keyup(function(){
+    $("#email").is(".confirm") && $("#pw").is(".confirm")
+    && $("#pw_check").is(".confirm") && $("#name").is(".confirm")
+      ? $("#signup").removeAttr("disabled")
+      : $("#signup").attr("disabled", "disabled")
+  })
+
+  $("#signup").click(function(){
+    e = $("#email").val()
+    p = $("#pw").val()
+    n = $("#name").val()
+    $.post("/signup/appro",{
+      e : e,
+      p : p,
+      n : n
+    },function(result){
+      location.href="/"
+    })
+  })
+</script>
+
+<style>
+  /* .box{
+    width: 500px;
+  }
+  .name{
+    width: 100px;
+    float: left;
+  }
+  #wrapper{
+    width: 500px;
+    margin : 0 auto;
+  }
+  .input-group>.form-control, .input-group>.form-select, .form-control{
+    width: 20vw;
+    flex: none;
+    height: 30px;
+  }
+  */
+  .form-control{
+    padding: 0 10px;
+  }
+  .form-floating>.form-control:focus, .form-floating>.form-control:not(:placeholder-shown){
+    padding: 0 10px;
+  }
+  .form-floating>.form-control, .form-floating>.form-select{
+    height: 25px;
+  }
+  .form-floating>.form-control{
+    padding: 0;
+  }
+  
+  /* #button-addon2{
+    height: 30px;
+    padding: 0 10px;
+  }
+  #email_alert{
+    height: 30px;
+    padding: 0 10px;
+    margin-left: 10px;
+  }
+  .input-group{
+    width: 500px
+  }  */
+
+
+.about{
+  margin-left : 170px
+}
+  * {
+  margin: 0px;
+  padding: 0px;
+  text-decoration: none;
+  font-family:sans-serif;
+
+}
+
+body {
+  background-image:#34495e;
+}
+
+.joinForm {
+  position:absolute;
+  width:650px;
+  height:400px;
+  padding: 30px, 20px;
+  background-color:#FFFFFF;
+  top:40%;
+  left:50%;
+  transform: translate(-50%,-50%);
+  border-radius: 15px;
+}
+
+.joinForm h2 {
+  text-align: center;
+  margin: 30px;
+}
+
+.textForm {
+  border-bottom: 2px solid #adadad;
+  margin: 20px;
+  padding-bottom: 10px;
+  line-height: 40px;
+}
+.text{
+  width: 20%;
+  float: left;
+  text-align: right;
+}
+
+.input {
+  margin-left: 10%;
+  margin-top: 10px;
+  width: 30%;
+  font-size:16px;
+  height:25px;
+  float: left;
+}
+
+.confirm{
+  border-color: green;
+}
+
+/* .btn {
+  position:relative;
+  left:40%;
+  transform: translateX(-50%);
+  margin-bottom: 40px;
+  width:40%;
+  height:40px;
+  background: linear-gradient(125deg,#81ecec,#6c5ce7,#81ecec);
+  background-position: left;
+  background-size: 200%;
+  color:white;
+  font-weight: bold;
+  border:none;
+  cursor:pointer;
+  transition: 0.4s;
+  display:inline;
+} */
+
+.btn:hover {
+  background-position: right;
+}
+</style>
