@@ -36,6 +36,12 @@
             : $(".alert").css("display", "")
         })
     })
+
+    $("#pw").keydown(function(key){
+        if(key.keyCode == 13){
+            $(".btn").click()
+        }
+    })
 </script>
 
 
