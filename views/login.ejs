@@ -4,25 +4,112 @@
         <%- include("./head.ejs") %>
     </head>
     <body>
-        <div>
-            <div>
-                이메일
-                <input type="text" class="form-control">
+        <div class="loginForm">
+            <h2>로그인</h2>
+            <div class="wrap">
+                <input type="text" class="box" id="email" placeholder="이메일">
             </div>
-            <div>
-                비밀번호
-                <input type="text" class="form-control">
+            <div class="wrap">
+                <input type="password" class="box" id="pw" placeholder="비밀번호">
             </div>
-            <button class="btn btn-primary">로그인</button>
-            <button class="btn btn-primary" onclick="location.href='/signup'">회원가입</button>
-            <div>
-                <span>아이디 찾기</span>
-                <span>비밀번호 찾기</span>
+            <div class="alert alert-danger" role="alert" style="left:20%; width: 60%; display: none;" >
+                이메일과 비밀번호를 확인하세요.
+            </div>
+            <button type="button" class="btn">
+                로그인
+            </button>
+            <div class="bottomText">
+                아직 회원이 아니신가요? <a href="/user/signup">회원가입</a>
             </div>
         </div>
     </body>
 </html>
 
+<script>
+    $(".btn").click(function(){
+        $.post("/user/login/check",{
+            email : $("#email").val(),
+            pw : $("#pw").val()
+        }, function(result){
+            result.check
+            ? location.href = "/"
+            : $(".alert").css("display", "")
+        })
+    })
+</script>
+
+
 <style>
-    
+    *{
+        margin: 0px;
+        padding: 0px;
+        text-decoration: none;
+        font-family:sans-serif;
+    }
+
+    body {
+        background-color : rgba(251, 222, 190, 0.3);
+    }
+
+    .loginForm {
+        position:absolute;
+        width:500px;
+        height:650px;
+        padding: 30px, 20px;
+        background-color:#FFFFFF;
+        text-align:center;
+        top:50%;
+        left:50%;
+        transform: translate(-50%,-50%);
+        border-radius: 15px;
+    }
+
+    .loginForm h2{
+        text-align: center;
+        margin: 50px 30px;
+    }
+
+    .wrap{
+        border-bottom: 2px solid #adadad;
+        margin : 60px 80px;
+        padding: 10px 10px;
+    }
+
+    .box {
+        width : 100%;
+        border : none;
+        outline : none;
+        color : #636e72;
+        font-size : 20px;
+        height : 25px;
+        background: none;
+    }
+
+    .btn {
+        position:relative;
+        left:35%;
+        transform: translateX(-50%);
+        margin-top: 50px;
+        margin-bottom: 40px;
+        width:70%;
+        height:40px;
+        background: linear-gradient(125deg,#81ecec,#6c5ce7,#81ecec);
+        background-position: left;
+        background-size: 200%;
+        color:white;
+        font-weight: bold;
+        border:none;
+        cursor:pointer;
+        transition: 0.4s;
+        display:inline;
+    }
+
+    .btn:hover {
+        background-position: right;
+    }
+
+    .bottomText {
+        text-align: center;
+        font-size: 18px;
+    }
 </style>

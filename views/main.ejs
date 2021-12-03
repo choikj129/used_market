@@ -9,15 +9,21 @@
         <nav id="navbar-example2" class="navbar navbar-light px-3">
             <a class="navbar-brand" href="#">중고 거래</a>
             <ul class="nav nav-pills">
+              <% if(login){ %>
                 <li class="nav-item">
-                    <a id="regist" class="nav-link">등록</a>
+                  <a id="regist" class="nav-link">등록</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link">마이페이지</a>
+                  <a class="nav-link">마이페이지</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link">로그아웃</a>
+                  <a class="nav-link" href="/user/logout">로그아웃</a>
                 </li>
+              <% }else{ %>
+                <li class="nav-item">
+                  <a class="nav-link" href="/user/login">로그인</a>
+                </li>
+              <% } %>
             </ul>
         </nav>
         <div class="row row-cols-1 row-cols-md-3 g-4">

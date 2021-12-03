@@ -24,23 +24,22 @@ app.use(express.static("public"));
 
 app.use(
     session({
-        secret : "dsefssgdfasdfa",
+        secret : data.secret,
         resave : false,
         saveUninitialized : true,
-        maxAge : 360000000
+        maxAge : 43200000
     })
 )
+
+const user = require("./routes/user")
+app.use("/user", user)
 
 app.listen(3000, function(){
     console.log("server start")
 })
 
 app.get("/", function(req, res){
-    res.render("login")
-})
-
-app.get("/signup", function(req, res){
-    res.render("signup")
+    res.render("main",{login : req.session.log})
 })
 
 app.get("/index", function(req, res){
@@ -51,35 +50,3 @@ app.get("/main", function(req, res){
     res.render("main.ejs")
 })
 
-app.get("/email_check", function(req, res){
-    var email = req.query.email
-    db.query(
-        `select * from user where email=?`,[email],
-        function(err, result){
-            err ? console.log(err) : res.json({check : result})
-        }
-    )
-})
-
-app.get("/name_check", function(req, res){
-    var name = req.query.name
-    db.query(
-        `select * from user where nickname=?`,[name],
-        function(err, result){
-            err ? console.log(err) : res.json({check : result})
-        }
-    )
-})
-
-app.post("/signup/appro", function(req, res){
-    var email = req.body.e;
-    var pw = Crypto.createHmac('sha256', key).update(req.body.p).digest("hex");
-    var n = req.body.n;
-    db.query(
-        `insert into user values(?,?,?)`,
-        [email, pw, n],
-        function(err){
-            err ? console.log(err) : res.send("")
-        }
-    )
-})

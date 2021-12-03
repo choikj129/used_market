@@ -19,13 +19,14 @@
       <div class="textForm form-floating">
         <div class="text" >이메일</div>
         <input type="text" id="email" class="input form-control is-invalid" >
-        <button class="btn btn-primary" style=" margin-left: 20px; height: 25px; padding: 0 10px" id="email_check">중복확인</button>
+        <button class="btn btn-outline-secondary" 
+        style=" margin-left: 20px; margin-top: 10px; height: 35px; padding: 0 10px" id="email_check">중복확인</button>
         <div class="about" id="email_text" style="visibility: hidden;">.</div>
       </div>
       <div class="textForm form-floating">
         <div class="text">비밀번호</div>
         <input type="password" class="input form-control password is-invalid " id="pw">
-        <br><div class="about">8~20자 사이 영문자,숫자,특수기호(~,!,@,#,?)로 조합하세요</div>
+        <br><div class="about">8~20자 영문자,숫자,특수기호(~,!,@,#,?)로 조합하세요</div>
       </div>
        <div class="textForm form-floating">
         <div class="text">비밀번호 확인</div>
@@ -38,45 +39,9 @@
         <br><div class="about" style="visibility: hidden;" id="name_check">.</div>
       </div>
       <div style="width : 100%;margin : 0 auto">
-        <button class="btn btn-primary" id="signup" style="display: block; margin : auto" disabled>회원가입</button>
+        <button id="signup" style="display: block; margin : auto" disabled>회원가입</button>
       </div>
     </div>
-    <!-- <div id="wrapper">
-      <div class="box">
-        <div class="name">이메일</div>
-        <div class="input-group mb-3 input">
-          <input type="text" class="form-control" id="email">
-          <button class="btn btn-outline-secondary" type="button" id="button-addon2">중복확인</button>
-        </div>
-        <div class="alert alert-danger" role="alert" id="email_alert">
-          이메일 형식이 아닙니다.
-        </div>
-      </div>
-      <div class="box">
-        <div class="name">비밀번호</div>
-        <div class="input-group mb-3 input">
-          <input type="password" class="form-control password" id="pw">
-        </div>
-      </div>
-      <div class="box">
-        <div class="name">비밀번호확인</div>
-        <div class="form-floating input">
-          <input type="password" class="form-control password" id="pw_check">
-        </div>
-      </div>
-      <div class="box">
-        <div class="name">닉네임</div>
-        <div class="input-group mb-3 input" >
-          <input type="text" class="form-control" id="name">
-        </div>
-      </div>
-      <button class="btn btn-outline-secondary" type="button" id="button-addon2">인증번호 발송</button>
-      <div class="name">인증번호</div>
-      <div class="input-group mb-3 input" >
-        <input type="text" class="form-control" id="number">
-        <button class="btn btn-outline-secondary" type="button" id="button-addon2">확인</button>
-      </div>
-    </div> -->
   </body>
 </html>
 
@@ -106,7 +71,7 @@
     var e = $("#email").val()
     var reg = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i
     if (reg.test(e)){
-      $.getJSON("/email_check",{
+      $.getJSON("/user/signup/email_check",{
         email : e
       },
       function(result){
@@ -134,7 +99,7 @@
   $("#name").blur(function(){
     var name = $(this).val()
     if (name){
-      $.getJSON("/name_check",{name : name},
+      $.getJSON("/user/signup/name_check",{name : name},
       function(result){
         if (result.check.length==0){
           $("#name_check").html("사용 가능한 닉네임입니다.").css("visibility", "")
@@ -167,137 +132,117 @@
     e = $("#email").val()
     p = $("#pw").val()
     n = $("#name").val()
-    $.post("/signup/appro",{
+    $.post("/user/signup/appro",{
       e : e,
       p : p,
       n : n
     },function(result){
-      location.href="/"
+      location.href="/user/login"
     })
   })
 </script>
 
 <style>
-  /* .box{
-    width: 500px;
-  }
-  .name{
-    width: 100px;
-    float: left;
-  }
-  #wrapper{
-    width: 500px;
-    margin : 0 auto;
-  }
-  .input-group>.form-control, .input-group>.form-select, .form-control{
-    width: 20vw;
-    flex: none;
-    height: 30px;
-  }
-  */
-  .form-control{
+  .form-control {
     padding: 0 10px;
   }
-  .form-floating>.form-control:focus, .form-floating>.form-control:not(:placeholder-shown){
+
+  .form-floating>.form-control:focus,
+  .form-floating>.form-control:not(:placeholder-shown) {
     padding: 0 10px;
   }
-  .form-floating>.form-control, .form-floating>.form-select{
-    height: 25px;
+
+  .form-floating>.form-control,
+  .form-floating>.form-select {
+    height: 35px;
   }
-  .form-floating>.form-control{
+
+  .form-floating>.form-control {
     padding: 0;
   }
-  
-  /* #button-addon2{
-    height: 30px;
-    padding: 0 10px;
-  }
-  #email_alert{
-    height: 30px;
-    padding: 0 10px;
-    margin-left: 10px;
-  }
-  .input-group{
-    width: 500px
-  }  */
 
+  .about {
+    margin-top : 10px;
+    margin-left: 170px;
+    font-size: 12px;
+    height: 40px;
+  }
 
-.about{
-  margin-left : 170px
-}
   * {
-  margin: 0px;
-  padding: 0px;
-  text-decoration: none;
-  font-family:sans-serif;
+    margin: 0px;
+    padding: 0px;
+    text-decoration: none;
+    font-family: sans-serif;
 
-}
+  }
 
-body {
-  background-image:#34495e;
-}
+  body {
+    background-color: rgba(251, 222, 190, 0.3);
+  }
 
-.joinForm {
-  position:absolute;
-  width:650px;
-  height:400px;
-  padding: 30px, 20px;
-  background-color:#FFFFFF;
-  top:40%;
-  left:50%;
-  transform: translate(-50%,-50%);
-  border-radius: 15px;
-}
+  .joinForm {
+    position: absolute;
+    width: 500px;
+    height: 650px;
+    padding: 30px, 20px;
+    background-color: #FFFFFF;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+  }
 
-.joinForm h2 {
-  text-align: center;
-  margin: 30px;
-}
+  .joinForm h2 {
+    text-align: center;
+    margin: 50px 30px;
+  }
 
-.textForm {
-  border-bottom: 2px solid #adadad;
-  margin: 20px;
-  padding-bottom: 10px;
-  line-height: 40px;
-}
-.text{
-  width: 20%;
-  float: left;
-  text-align: right;
-}
+  .textForm {
+    border-bottom: 2px solid #adadad;
+    margin: 20px 20px;
+    line-height: 40px;
+  }
 
-.input {
-  margin-left: 10%;
-  margin-top: 10px;
-  width: 30%;
-  font-size:16px;
-  height:25px;
-  float: left;
-}
+  .text {
+    width: 25%;
+    float: left;
+    text-align: right;
+    font-size: 15px;
+  }
 
-.confirm{
-  border-color: green;
-}
+  .input {
+    margin-left: 10%;
+    margin-top: 10px;
+    width: 40%;
+    font-size: 14px;
+    height: 35px;
+    float: left;
+    font-size: 13px;
+  }
 
-/* .btn {
-  position:relative;
-  left:40%;
-  transform: translateX(-50%);
-  margin-bottom: 40px;
-  width:40%;
-  height:40px;
-  background: linear-gradient(125deg,#81ecec,#6c5ce7,#81ecec);
-  background-position: left;
-  background-size: 200%;
-  color:white;
-  font-weight: bold;
-  border:none;
-  cursor:pointer;
-  transition: 0.4s;
-  display:inline;
-} */
+  .confirm {
+    border-color: green;
+  }
 
-.btn:hover {
-  background-position: right;
-}
+  #signup {
+    position:relative;
+    left:35%;
+    transform: translateX(-50%);
+    margin-bottom: 40px;
+    width:70%;
+    height:40px;
+    background: linear-gradient(125deg,#81ecec,#6c5ce7,#81ecec);
+    background-position: left;
+    background-size: 200%;
+    color:white;
+    font-weight: bold;
+    border:none;
+    cursor:pointer;
+    transition: 0.4s;
+    display:inline;
+  }
+
+  .btn:hover {
+    background-position: right;
+  }
 </style>
