@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql2");
 const session = require("express-session");
+const moment = require("moment")
 const fs = require("fs");
 const Crypto = require("crypto");
 const data = JSON.parse(fs.readFileSync(__dirname + '/db.json'));
@@ -23,14 +24,19 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 var storage = multer.diskStorage({
     destination : function (req, file, callback){
-        callback(null, "public/img")
+        dir = "public/img/"+req.session.log.nickname
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir)
+        }
+        callback(null, dir)
     },
     filename : function(req, file, callback){
         const ext = path.extname(file.originalname)
         callback(null, path.basename(file.originalname, ext)+"-" +Date.now()+ext)
     }
 })
-var upload = multer({storage : storage})
+var upload = multer({
+    storage : storage})
 
 app.set("views", __dirname+"/views");
 app.set("view engine", "ejs")
@@ -72,5 +78,38 @@ app.get("/regist",function(req, res){
 })
 
 app.post("/regist/commit", upload.array("images"), function(req,res){
-    console.log(req.files)
+    var title = req.body.title
+    var contents = req.body.contents
+    var category = req.body.category
+    var cost = req.body.cost
+    var images = req.files
+    var post_id = req.session.log.nickname + moment().format("YYYYMMDDHHmmss")
+    db.query(
+        `insert into post values (?,?,?,?,?,?)`,
+        [post_id, title, contents, category, cost, req.session.log.email],
+        function(err){
+            if (err){
+                console.log(err)
+            }else{
+                if(images){
+                    var col = ""
+                    var val = "?,"
+                    var path = [post_id]
+                    for (var i=0; i<images.length; i++){
+                        col += `image${i+1},`
+                        val += "?,"
+                        path.push(images[i].path)
+                    }
+                    db.query(
+                        `insert into images(post_id,${col.slice(0,-1)})
+                        values(${val.slice(0,-1)})`,
+                        path,
+                        function(err){
+                            err ? console.log(err) : res.redirect("/")
+                        }
+                    )
+                }
+            }
+        }
+    )
 })
