@@ -86,7 +86,7 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
     var category = req.body.category
     var cost = req.body.cost.length>0 ? req.body.cost : "가격 미정"
     var images = req.files
-    var loc = req.body.location
+    var loc = `${req.body.si} ${req.body.gu} ${req.body.dong}`
     var post_id = req.session.log.nickname + moment().format("YYYYMMDDHHmmss")
     db.query(
         `insert into post values (?,?,?,?,?,?,?)`,
@@ -95,14 +95,14 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
             if (err){
                 console.log(err)
             }else{
-                if(images){
+                if(images.length>0){
                     var col = ""
                     var val = "?,"
                     var path = [post_id]
                     for (var i=0; i<images.length; i++){
                         col += `image${i+1},`
                         val += "?,"
-                        path.push(images[i].path)
+                        path.push(images[i].path.slice(0,6))
                     }
                     db.query(
                         `insert into images(post_id,${col.slice(0,-1)})
@@ -112,10 +112,13 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
                             err ? console.log(err) : res.redirect("/")
                         }
                     )
+                }else{
+                    res.redirect("/")
                 }
             }
         }
     )
+
 })
 
 app.get("/post", function(req, res){
@@ -129,6 +132,5 @@ app.get("/post", function(req, res){
                 post : result[0]
             })
         }
-    )
-        
+    )   
 })

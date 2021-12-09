@@ -51,9 +51,18 @@
         <option value="기타">기타</option>
         <option value="삽니다">삽니다</option>
       </select>
-      <div id="location_wrap">
-        <input type="text" class="form-control" id="location" name="location" style="width: 70%; height: 100%; padding : 0 auto; float: left;" readonly>
-        <button type="button" id="call" class="btn btn-outline-secondary" style="width: 30%; height: 100%; padding : 3px">주소 불러오기</button>
+      <div id="location_wrap" >
+        <select id="sido" class="form-select" name="si">
+          <option value="" disabled selected hidden>시/도</option>
+        </select>
+        <select id="sigugun" class="form-select" name="gu">
+          <option value="" disabled selected hidden>시/군/구</option>
+        </select>
+        <select id="dong" class="form-select" name="dong">
+          <option value="" disabled selected hidden>읍/면/동</option>
+        </select>
+        <!-- <input type="text" class="form-control" id="location" name="location" style="width: 70%; height: 100%; padding : 0 auto; float: left;" readonly>
+        <button type="button" id="call" class="btn btn-outline-secondary" style="width: 30%; height: 100%; padding : 3px">주소 불러오기</button> -->
       </div>
       <textarea  id="contents" name="contents" class="form-control" placeholder="내용을 입력하세요"></textarea>
       <input type="text" class="form-control" name="cost" id="cost" placeholder="가격(원)" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
@@ -75,47 +84,56 @@
 
 </html>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=372aa56c63c5b99ad7c801903ffae038&libraries=services"></script>
+<script src="js/hangjungdong.js"></script>
 <script>
-  
-  $(document).on("click", ".delImg", function(){
+
+  $(document).on("click", ".delImg", function () {
     var dT = new DataTransfer();
     var id = $(this).parent().attr("id")
     var files = $("#images")[0].files
-    for (var i=0; i<files.length; i++){
-      if(id!=files[i].lastModified){
+    for (var i = 0; i < files.length; i++) {
+      if (id != files[i].lastModified) {
         dT.items.add(files[i])
       }
     }
     document.querySelector("#images").files = dT.files
-    $("#"+id).remove()
-    $("#count").text(dT.items.length+"/10")
+    $("#" + id).remove()
+    $("#count").text(dT.items.length + "/10")
     console.log(document.querySelector("#images").files)
-  })  
+  })
 
-  function check(){
+  function check() {
     var title = $("#title").val()
     var contents = $("#contents").val()
     var category = $("#category").val()
-    var loc = $("#location").val()
-    if (title.length==0){
+    // var loc = $("#location").val()
+    var si = $("#sido").val()
+    var gu = $("#sigugun").val()
+    var dong = $("#dong").val()
+    console.log(si, gu, dong)
+    if (title.length == 0) {
       alert("제목을 입력해주세요.")
       return false
     }
-    if (category==null){
+    if (category == null) {
       alert("카테고리를 선택해주세요.")
       return false
     }
-    if (loc.length==0){
-      alert("주소를 입력해주세요")
+    if (si==null || gu==null || dong==null){
+      alert("지역을 선택해주세요")
       return false
     }
+    // if (loc.length == 0) {
+    //   alert("주소를 입력해주세요")
+    //   return false
+    // }
   }
 
   var dT = new DataTransfer();
-  function upload(files){
+  function upload(files) {
     var file = files.files
-    for (var i=0; i<file.length; i++){
-      if (dT.items.length==10){
+    for (var i = 0; i < file.length; i++) {
+      if (dT.items.length == 10) {
         alert("이미지가 10개를 초과하였습니다.")
         break
       }
@@ -135,52 +153,133 @@
       )
     }
     document.querySelector("#images").files = dT.files
-    $("#count").text(dT.items.length+"/10")
+    $("#count").text(dT.items.length + "/10")
   }
 
-  var options = {
-    enableHighAccuracy : true,
-    timeout : 5000,
-    maximumAge : 0
-  };
-  function error(err) {
-    console.warn('ERROR(' + err.code + '): ' + err.message);
-  };
+  // var options = {
+  //   enableHighAccuracy : true,
+  //   timeout : 5000,
+  //   maximumAge : 0
+  // };
+  // function error(err) {
+  //   console.warn('ERROR(' + err.code + '): ' + err.message);
+  // };
 
-  function success(pos) {
-    var crd = pos.coords;
-    var lat = crd.latitude;
-    var lon = crd.longitude;
-    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-    mapOption = {
-        center: new kakao.maps.LatLng(lat, lon), // 지도의 중심좌표
-        level: 1 // 지도의 확대 레벨
-    };  
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-    var geocoder = new kakao.maps.services.Geocoder();
-    function searchAddrFromCoords(coords, callback) {
-      // 좌표로 행정동 주소 정보를 요청합니다
-      geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);         
-    }
-    function displayCenterInfo(result, status) {
-      if (status === kakao.maps.services.Status.OK) {
+  // function success(pos) {
+  //   var crd = pos.coords;
+  //   var lat = crd.latitude;
+  //   var lon = crd.longitude;
+  //   var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+  //   mapOption = {
+  //       center: new kakao.maps.LatLng(lat, lon), // 지도의 중심좌표
+  //       level: 1 // 지도의 확대 레벨
+  //   };  
+  //   var map = new kakao.maps.Map(mapContainer, mapOption);
+  //   var geocoder = new kakao.maps.services.Geocoder();
+  //   function searchAddrFromCoords(coords, callback) {
+  //     // 좌표로 행정동 주소 정보를 요청합니다
+  //     geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);         
+  //   }
+  //   function displayCenterInfo(result, status) {
+  //     if (status === kakao.maps.services.Status.OK) {
 
-        for(var i = 0; i < result.length; i++) {
-          // 행정동의 region_type 값은 'H' 이므로
-          if (result[i].region_type === 'H') {
-            $("#location").val(result[i].address_name)
-            break;
-          }
+  //       for(var i = 0; i < result.length; i++) {
+  //         // 행정동의 region_type 값은 'H' 이므로
+  //         if (result[i].region_type === 'H') {
+  //           $("#location").val(result[i].address_name)
+  //           break;
+  //         }
+  //       }
+  //     }    
+  //   }
+  //   searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+  // };
+
+  // $("#call").click(function() {
+  //   navigator.geolocation.getCurrentPosition(success, error, options);
+  // })
+
+
+  $(document).ready(function () {
+    //sido option 추가
+    $.each(hangjungdong.sido, function (idx, code) {
+      //append를 이용하여 option 하위에 붙여넣음
+      $('#sido').append(fn_option(code.sido, code.codeNm));
+    });
+
+    //sido 변경시 시군구 option 추가
+    $('#sido').change(function () {
+      $('#sigugun').show();
+      $('#sigugun').empty();
+      $('#dong').empty();
+      $('#dong').prepend(fn_option('', '읍/면/동'));
+      //option중 선택을 기본으로 선택
+      $('#dong option:eq("")').attr({
+        "selected" : "selected",
+        "disabled" : "disabled",
+        "hidden" : "hidden"
+      });
+      $('#sigugun').append(fn_option('', '시/군/구')); //
+      $('#sigugun option:eq("")').attr({
+        "selected" : "selected",
+        "disabled" : "disabled",
+        "hidden" : "hidden"
+      });
+      $.each(hangjungdong.sigugun, function (idx, code) {
+        if ($('#sido > option:selected').hasClass(code.sido)){
+          $('#sigugun').append(fn_option(code.sigugun, code.codeNm));
         }
-      }    
-    }
-    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
-  };
+      });
 
-  $("#call").click(function() {
-    navigator.geolocation.getCurrentPosition(success, error, options);
-  })
-  
+      //세종특별자치시 예외처리
+      //옵션값을 읽어 비교
+      if ($('#sido option:selected').attr("class") == '36') {
+        $('#sigugun').hide();
+        
+        //index를 이용해서 selected 속성(attr)추가
+        //기본 선택 옵션이 최상위로 index 0을 가짐
+        $('#sigugun option:eq(1)').attr({
+          "selected" : "selected",
+          "disabled" : "disabled",
+          "hidden" : "hidden"
+        });
+        //trigger를 이용해 change 실행
+        $('#sigugun').trigger('change');
+      }
+    });
+
+    //시군구 변경시 행정동 옵션추가
+    $('#sigugun').change(function () {
+      //option 제거
+      $('#dong').empty();
+      $.each(hangjungdong.dong, function (idx, code) {
+        if ($('#sido > option:selected').hasClass(code.sido) && $('#sigugun > option:selected').hasClass(code.sigugun)){
+          $('#dong').append(fn_option(code.dong, code.codeNm));
+        }
+      });
+      //option의 맨앞에 추가
+      $('#dong').prepend(fn_option('', '읍/면/동'));
+      //option중 선택을 기본으로 선택
+      $('#dong option:eq("")').attr({
+        "selected" : "selected",
+        "disabled" : "disabled",
+        "hidden" : "hidden"
+      });
+
+    });
+
+    $('#dong').change(function () {
+      var sido = $('#sido option:selected').val();
+      var sigugun = $('#sigugun option:selected').val();
+      var dong = $('#dong option:selected').val();
+      var dongCode = sido + sigugun + dong + '00';
+
+    });
+  });
+
+  function fn_option(code, name) {
+    return '<option value="'+name+'" class='+code+'>' + name + '</option>';
+  }
 
 
 </script>
@@ -305,5 +404,9 @@
     top :  10%;
     height: 80%;
     z-index: 1;
+  }
+  #sido, #sigugun, #dong{
+    width: 33%;
+    float: left;
   }
 </style>
