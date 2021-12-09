@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 var storage = multer.diskStorage({
     destination : function (req, file, callback){
-        dir = "public/img/"+req.session.log.nickname
+        dir = "public/images/"+req.session.log.nickname
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir)
         }
@@ -62,15 +62,18 @@ app.listen(3000, function(){
 })
 
 app.get("/", function(req, res){
-    res.render("main",{login : req.session.log})
-})
-
-app.get("/index", function(req, res){
-    res.render("index")
-})
-
-app.get("/main", function(req, res){
-    res.render("main")
+    db.query(
+        `select A.*, B.image1 
+        from post A left join images B on A.post_id=B.post_id;`,
+        function(err, result){
+            err 
+            ? console.log(err) 
+            : res.render("main",{
+                login : req.session.log,
+                post : result
+            })    
+        }
+    )
 })
 
 app.get("/regist",function(req, res){
@@ -81,12 +84,13 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
     var title = req.body.title
     var contents = req.body.contents
     var category = req.body.category
-    var cost = req.body.cost
+    var cost = req.body.cost.length>0 ? req.body.cost : "가격 미정"
     var images = req.files
+    var loc = req.body.location
     var post_id = req.session.log.nickname + moment().format("YYYYMMDDHHmmss")
     db.query(
-        `insert into post values (?,?,?,?,?,?)`,
-        [post_id, title, contents, category, cost, req.session.log.email],
+        `insert into post values (?,?,?,?,?,?,?)`,
+        [post_id, title, contents, category, cost, loc, req.session.log.nickname],
         function(err){
             if (err){
                 console.log(err)
@@ -112,4 +116,19 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
             }
         }
     )
+})
+
+app.get("/post", function(req, res){
+    var post_id = req.query.id
+    db.query(
+        `select A.*, B.* 
+        from post A left join images B on A.post_id=B.post_id
+        where post_id=`+post_id,
+        function (err, result) {
+            err ? console.log(err) : res.render("post",{
+                post : result[0]
+            })
+        }
+    )
+        
 })
