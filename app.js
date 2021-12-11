@@ -102,7 +102,7 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
                     for (var i=0; i<images.length; i++){
                         col += `image${i+1},`
                         val += "?,"
-                        path.push(images[i].path.slice(0,6))
+                        path.push(images[i].path.slice(6,))
                     }
                     db.query(
                         `insert into images(post_id,${col.slice(0,-1)})
@@ -126,7 +126,7 @@ app.get("/post", function(req, res){
     db.query(
         `select A.*, B.* 
         from post A left join images B on A.post_id=B.post_id
-        where post_id=`+post_id,
+        where A.post_id="${post_id}"`,
         function (err, result) {
             err ? console.log(err) : res.render("post",{
                 post : result[0]
