@@ -129,6 +129,7 @@ app.get("/post", function(req, res){
         where A.post_id="${post_id}"`,
         function (err, result) {
             err ? console.log(err) : res.render("post",{
+                login : req.session.log,
                 post : result[0]
             })
         }
