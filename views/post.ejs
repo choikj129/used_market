@@ -6,6 +6,9 @@
   </head>
   
   <body>
+    <div id="post_id" style="display: none;"><%= id %></div>
+    <div id="nickname" style="display: none;"><%= post.nickname %></div>
+    <div id="love" style="display: none;"><%= post.love %></div>
     <nav id="navbar-example2" class="navbar navbar-light px-3">
       <a class="navbar-brand" href="#">중고 거래</a>
       <ul class="nav nav-pills">
@@ -23,7 +26,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/user/login">로그인</a>
             </li>
-            <% } %>
+          <% } %>
       </ul>
     </nav>
     <div style="width: 100%; height: auto; position: relative;">
@@ -67,12 +70,30 @@
         <div id="contents" style="text-align: left; white-space: pre-line;">
           <div style="font-size: 20px; font-weight: bolder;"><%= post.title %></div>
           <div style="font-size: 15px;"><%= post.category %></div>
-          <div style="font-size: 15px; font-weight: bolder;"><%= post.contents%></div>
+          <div style="font-size: 15px; font-weight: bolder; margin-bottom: 50px;"><%= post.contents%></div>
         </div>
       </div>
     </div>
-    
-    
+    <div id="state">
+      <div id="heart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+          <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+        </svg>
+      
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+        </svg>
+      </div>
+      <div style="position: absolute; left:85px; height: 100%; line-height: 70px; text-align: center;  " >
+        <%= post.cost %><% if(post.cost!="가격 미정") { %>원<% } %>
+      </div>
+      <div id="chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-left-dots" viewBox="0 0 16 16">
+          <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+          <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        </svg>
+      </div>
+    </div>
   </body>
 
 </html>
@@ -108,7 +129,34 @@
       }
     })
   })
-  console.log($("#contents").children().last().text())
+
+  var love;
+  if($("#love").text().length==0){
+    $(".bi-heart").css("display", "block")
+    love = 0
+  }else{
+    $(".bi-heart-fill").css("display", "block")
+    love = 1
+  }
+
+  $("#heart").click(function(){
+    $.getJSON("/post/love",
+      {
+        post_id : $("#post_id").text(),
+        name : $("#nickname").text(),
+        love : love
+      },function(result){
+        if (result.love == 0){
+          $(".bi-heart").css("display", "block")
+          $(".bi-heart-fill").css("display", "none")
+        }else{
+          $(".bi-heart-fill").css("display", "block")
+          $(".bi-heart").css("display", "none")
+        }
+        love = result.love
+      }
+    )
+  })
 </script>
 
 <style>
@@ -149,10 +197,23 @@
     border: solid 1.5px black;
     margin-top: 25px;
     background-color: #FFFFFF;
+    min-height: 850px;
+    z-index: -1;
   }
-
   #modal h2 { 
     margin:  30px;
+  }
+
+  #state{
+    z-index: 1;
+    background-color: #FFFFFF;
+    position: fixed;
+    width: 550px;
+    height: 70px;
+    left: 50%;
+    bottom : 0;
+    transform: translate(-50%, 0%);
+    border: solid 1.5px black;
   }
 
   #name{
@@ -198,5 +259,33 @@
   .bi-image{
     width: 100%;
     height: 95%;
+  }
+  #heart{
+    position: absolute;
+    left: 20px;
+    width: 25px;
+    height: 25px;
+    top : 22.5px;
+    cursor: pointer;
+  }
+  .bi-heart ,.bi-heart-fill{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
+
+  #chat{
+    position: absolute;
+    right: 20px;
+    width: 25px;
+    height: 25px;
+    top : 22.5px;
+    cursor: pointer;
+  }
+  .bi-chat-left-dots{
+    position: absolute;
+    width: 100%;
+    height: 100%;
   }
 </style>

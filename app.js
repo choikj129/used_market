@@ -54,7 +54,8 @@ app.use(
     })
 )
 
-const user = require("./routes/user")
+const user = require("./routes/user");
+const e = require("express");
 app.use("/user", user)
 
 app.listen(3000, function(){
@@ -64,7 +65,8 @@ app.listen(3000, function(){
 app.get("/", function(req, res){
     db.query(
         `select A.*, B.image1 
-        from post A left join images B on A.post_id=B.post_id;`,
+        from post A left join images B on A.post_id=B.post_id
+        order by right(A.post_id,14) desc`,
         function(err, result){
             err 
             ? console.log(err) 
@@ -122,16 +124,43 @@ app.post("/regist/commit", upload.array("images"), function(req,res){
 })
 
 app.get("/post", function(req, res){
-    var post_id = req.query.id
+    if(!req.session.log){
+        res.redirect("/user/login")
+    }else{
+        var post_id = req.query.id
+        var name = req.session.log.nickname
+        db.query(
+            `select A.*, B.*, (select id from love where post_id=? and nickname=?) love
+            from post A left join images B on A.post_id=B.post_id
+            where A.post_id=?`,
+            [post_id, name, post_id],
+            function (err, result) {
+                err ? console.log(err) : res.render("post",{
+                    login : req.session.log,
+                    post : result[0],
+                    id : post_id
+                })
+            }
+        )   
+    }
+})
+
+app.get("/post/love", function(req, res){
+    var post_id = req.query.post_id
+    var name = req.query.name
+    var love = req.query.love
+    console.log(post_id, name, love)
+    if (love==0){
+        var sql = `insert into love(post_id, nickname) values(?,?)`
+        love = 1
+    }else{
+        var sql = `delete from love where post_id=? and nickname=?`
+        love = 0
+    }
     db.query(
-        `select A.*, B.* 
-        from post A left join images B on A.post_id=B.post_id
-        where A.post_id="${post_id}"`,
-        function (err, result) {
-            err ? console.log(err) : res.render("post",{
-                login : req.session.log,
-                post : result[0]
-            })
+        sql, [post_id, name], function(err){
+            err ? console.log(err) : res.json({love : love})
         }
-    )   
+    )
+
 })
